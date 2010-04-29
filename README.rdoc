@@ -12,6 +12,15 @@ Use
 
 * require 'meta_programming'
 
+== Beta Status
+
+I consider this Gem in personal beta and suspect it will be in this state for
+a while.  If you use it, expect changes that may break your code until the
+lexigraph has a chance to mature.
+
+I welcome comments and collaborators who
+would like to develop a library for simplifying common patterns and limit
+the pitfalls of Ruby meta-programming.
 	
 == Description
 
@@ -19,6 +28,7 @@ Current Methods
 * eigenclass (or metaclass)
 * safe_alias_method_chain
 * define_chained_method
+* define_ghost_method
 * blank_slate
 * clean_room
 
