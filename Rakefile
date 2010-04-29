@@ -47,7 +47,12 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README.rdoc', 'LICENSE', 'lib/**/*.rb')
 end
- 
+
+desc 'Clean gem builds.'
+task :clean do
+  FileUtils.rm_f Dir.glob('*.gem')
+end
+
 desc 'Generate a gemspec file.'
 task :gemspec do
   File.open("#{spec.name}.gemspec", 'w') do |f|

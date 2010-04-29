@@ -51,14 +51,36 @@ describe "MetaProgramming" do
     it "should define and chain a method safely if there is no target method" do
       class B4
         define_chained_method(:target, :chain) do |array|
-          array << 'chain'
           target_without_chain(array)
+          array << 'chain'
         end
         B4.new.target(['init']).should == ['init', 'chain']
       end
     end
   end
   describe "safe_alias_method_chain method" do
+    it "should chain for a primary protected method" do
+      class D1
+        def primary(array); array << 'primary'; end
+        protected :primary
+        def primary_with_one(array); array << 'one'; primary_without_one(array); end
+        safe_alias_method_chain :primary, :one
+      end
+      D1.new.instance_eval do
+        primary(['init']).should == ['init', 'one', 'primary']
+      end
+    end
+    it "should chain for a primary private method" do
+      class D2
+        def primary(array); array << 'primary'; end
+        protected :primary
+        def primary_with_one(array); array << 'one'; primary_without_one(array); end
+        safe_alias_method_chain :primary, :one
+      end
+      D2.new.instance_eval do
+        primary(['init']).should == ['init', 'one', 'primary']
+      end
+    end
     it "should not chain for non-existent chaining method" do
       class A
         def primary(array); array << 'primary'; end
@@ -154,6 +176,17 @@ describe "MetaProgramming" do
       lambda {
         A7.new.primary!(['init']).should == ['init', 'one', 'primary']
       }.should_not raise_exception
+    end
+    it "should chain for an inherited method" do
+      class A8
+        def primary(array); array << 'primary'; end
+      end
+      A8.new.primary(['init']).should == ['init', 'primary']
+      class A9 < A8
+        def primary_with_sub(array); array << 'sub'; primary_without_sub(array); end
+        safe_alias_method_chain :primary, :sub
+      end
+      A9.new.primary(['init']).should == ['init', 'sub', 'primary']
     end
   end
 end
