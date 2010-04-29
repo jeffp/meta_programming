@@ -16,11 +16,11 @@ Use
 == Description
 
 Current Methods
-eigenclass (or metaclass)
-safe_alias_method_chain
-define_chained_method
-blank_slate
-clean_room
+* eigenclass (or metaclass)
+* safe_alias_method_chain
+* define_chained_method
+* blank_slate
+* clean_room
 
 
 == Dependencies
