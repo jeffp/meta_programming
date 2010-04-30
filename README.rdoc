@@ -14,7 +14,7 @@ Use
 
 Concepts/Terminology
 
-Metaprogramming_Ruby[http://pragprog.com/titles/ppmetr/metaprogramming-ruby]
+* Metaprogramming_Ruby[http://pragprog.com/titles/ppmetr/metaprogramming-ruby]
 
 == Beta Status
 
