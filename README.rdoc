@@ -12,6 +12,10 @@ Use
 
 * require 'meta_programming'
 
+Concepts/Terminology
+
+'Metaprogramming Ruby'[http://pragprog.com/titles/ppmetr/metaprogramming-ruby]
+
 == Beta Status
 
 I consider this Gem in personal beta and suspect it will be in this state for
@@ -31,6 +35,60 @@ Current Methods
 * define_ghost_method
 * blank_slate
 * clean_room
+
+
+== Usage
+
+=== define_ghost_method
+
++define_ghost_method+ creates a 'ghost' method for an undefined method that corresponds
+to the 'matcher' parameter.
+
+  define_ghost_method(matcher) do |object, method_name_symbol, *args|
+    ...method body...
+  end
+
+A block must be present and it takes (optionally) the receiving object, the method name (as
+a symbol with exception of a lambda matcher) and the method arguments.
+
+The matcher may be any of a symbol, string, regular expression or Proc/lambda.
+
+==== String, symbols and regular expression matchers
+
+  define_ghost_method('my_method) {|obj, sym, *args| ... }
+  define_ghost_method(':my_method) {|obj, sym, *args| ... }
+  define_ghost_method(/^my_method$/) {|obj, sym, *args| ... }
+
+String and symbol matchers will only process the method if its name matches the string
+or symbol exactly.  Regular expressions provide greater flexibility and care must be
+taken to define scrutinizing regular expression matchers.  It is a good practice to use
+the /^ and $/ matchers to limit the scope.
+
+In all cases, the method name is passed in the second parameter as a symbol to the
+method block.  This is not the case with lambda matchers.
+
+==== Proc/lambda matchers
+
+Lambda matchers provide an opportunity to greatly scrutinize the method call based on the
+parameters passed to the method block (object, method_name, *args).  The method is
+invoked for any lambda not evaluating to nil or false.
+
+  proc = lambda{|object, method_name, *args| ...matching code... }
+  define_ghost_method(proc) {|obj, proc_result, *args| ... }
+
+Proc and lambda matchers differ from the other matcher in that the second parameter passes
+the result of the Proc/lambda matcher to the method block.  This feature lets the matcher
+pre-process the name of the method passed to the body.
+
+  proc = lambda{|obj, sym, *args| sym =~ /^not_(.+\?)$/ && $1.to_sym }
+
+The extra flexibility comes at greater responsibility.  If you only want to pass the
+method name symbol to the method block, don't forget to return it from the lambda.
+
+  proc = lambda{|obj, sym, *args| sym =~ /^not_.+\?$/ && sym }
+
+Additionally, the 'return' keyword has different effects between Procs and lambdas.
+I suggest not explicitly using the 'return' keyword in your method blocks.  It's a Ruby thing.
 
 
 == Dependencies

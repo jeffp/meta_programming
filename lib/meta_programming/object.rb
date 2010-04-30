@@ -64,8 +64,7 @@ module MetaProgramming
               handled = matcher.call(self, symbol, *args)
               yield(self, handled, *args) if handled
             end
-            __send__("method_missing_without_#{ext}".to_sym, symbol, *args) unless handled
-            result if handled
+            handled ? result : __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
           rescue LocalJumpError
             raise LocalJumpError, "Remove the 'return' keyword in your method block."
           end
