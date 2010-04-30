@@ -13,26 +13,38 @@ module MetaProgramming
     end
     
     module ClassMethods
+      def method_access_level(method_name)
+        case
+        when public_method_defined?(method_name.to_sym) then :public
+        when private_method_defined?(method_name.to_sym) then :private
+        when protected_method_defined?(method_name.to_sym) then :protected
+        else nil
+        end
+      end
+
+      def compose_chaining_symbols(method_name, ext)
+        stripped_method_name, punctuation = method_name.to_s.sub(/([?!=])$/, ''), $1
+        ["#{stripped_method_name}_with_#{ext}#{punctuation}".to_sym,
+          "#{stripped_method_name}_without_#{ext}#{punctuation}".to_sym]
+      end
+
+      def escape_method_name(method_name)
+        method_name.to_s.gsub(/\?/, 'qmark').gsub(/\!/, 'bang').gsub(/\=/, 'equal')
+      end
+      
       def safe_alias_method_chain(method_name, ext)
         class_eval do
-          stripped_method_name, punctuation = method_name.to_s.sub(/([?!=])$/, ''), $1
-          method_name_with_ext = "#{stripped_method_name}_with_#{ext}#{punctuation}".to_sym
-          method_name_without_ext = "#{stripped_method_name}_without_#{ext}#{punctuation}".to_sym
-          instance_variable = "#{stripped_method_name}_#{ext}_#{{'?'=>'questmark', '!'=>'bang', '='=>'equals'}[punctuation]}"
-          if ((public_method_defined?(method_name_with_ext) ||
-                  private_method_defined?(method_name_with_ext) ||
-                  protected_method_defined?(method_name_with_ext)) &&
-                  !(eigenclass.instance_variable_defined?("@#{instance_variable}")))
-            if (public_method_defined?(method_name.to_sym) ||
-                  private_method_defined?(method_name.to_sym) ||
-                  protected_method_defined?(method_name.to_sym))
+          method_name_with_ext, method_name_without_ext = compose_chaining_symbols(method_name, ext)
+          instance_variable = escape_method_name(method_name_with_ext)
+          if (method_access_level(method_name_with_ext) && !(eigenclass.instance_variable_defined?("@#{instance_variable}")))
+            if method_access_level(method_name.to_sym)
               #alias_method_chain(method_name.to_sym, ext.to_sym)
               alias_method method_name_without_ext, method_name.to_sym
               alias_method method_name.to_sym, method_name_with_ext
-              case
-              when public_method_defined?(method_name_without_ext) then public(method_name.to_sym)
-              when protected_method_defined?(method_name_without_ext) then protected(method_name.to_sym)
-              when private_method_defined?(method_name_without_ext) then private(method_name.to_sym)
+              case method_access_level(method_name_without_ext)
+              when :public then public(method_name.to_sym)
+              when :protected then protected(method_name.to_sym)
+              when :private then private(method_name.to_sym)
               end
             else
               define_method(method_name_without_ext) {|*args| }
@@ -44,7 +56,8 @@ module MetaProgramming
       end
 
       def define_chained_method(method_name, ext, &block)
-        define_method("#{method_name}_with_#{ext}".to_sym, block)
+        with, without = compose_chaining_symbols(method_name, ext)
+        define_method(with, block)
         safe_alias_method_chain(method_name.to_sym, ext.to_sym)
       end
 
@@ -61,13 +74,21 @@ module MetaProgramming
             when String, Symbol
               yield(self, symbol, *args) if (handled = (symbol == matcher.to_sym))
             when Proc
-              handled = matcher.call(self, symbol, *args)
-              yield(self, handled, *args) if handled
+              handled = matcher.call(self, symbol)
+              yield(self, handled == true ? symbol : handled, *args) if handled
             end
             handled ? result : __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
           rescue LocalJumpError
             raise LocalJumpError, "Remove the 'return' keyword in your method block."
           end
+        end
+        define_chained_method(:respond_to?, ext.to_sym) do |method_name| #, include_private|
+          responds = case matcher
+          when Regexp then method_name.to_s =~ matcher
+          when String, Symbol then method_name == matcher.to_sym
+          when Proc then matcher.call(self, method_name)
+          end
+          responds || __send__("respond_to_without_#{ext}?", method_name) #, include_private)
         end
       end
     end

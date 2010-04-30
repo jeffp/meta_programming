@@ -89,7 +89,11 @@ method name symbol to the method block, don't forget to return it from the lambd
 
 Additionally, the 'return' keyword has different effects between Procs and lambdas.
 I suggest not explicitly using the 'return' keyword in your method blocks.  It's a Ruby thing.
+define_ghost_method will remind you if a LocalJumpError is raised.
 
+==== Critique
+
+I'm not completely satisfied with the design of the implementation.
 
 == Dependencies
 
