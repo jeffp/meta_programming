@@ -56,9 +56,9 @@ module MetaProgramming
           begin
             case
             when ((matcher.is_a?(String) || matcher.is_a?(Symbol)) && (symbol == matcher.to_sym))
-              yield(symbol, *args)
+              yield(self, symbol, *args)
             when (matcher.is_a?(Regexp) && (symbol.to_s =~ matcher))
-              yield(symbol, *args)
+              yield(self, symbol, *args)
             else
               __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
             end

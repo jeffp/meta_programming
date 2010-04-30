@@ -40,7 +40,7 @@ describe "MetaProgramming" do
     end
     it "should define a ghost method using a regular expression" do
       class A6
-        define_ghost_method(/catch/) do |symbol|
+        define_ghost_method(/catch/) do |object, symbol|
           symbol
         end
       end
@@ -50,11 +50,19 @@ describe "MetaProgramming" do
     end
     it "should pass arguments to the block" do
       class A7
-        define_ghost_method(/ghost/) do |symbol, *args|
+        define_ghost_method(/ghost/) do |object, symbol, *args|
           "#{symbol.to_s.gsub(/_/, ' ')} #{args.join(' ')}"
         end
       end
       lambda { A7.new.ghost_methods('kick', 'butt').should == 'ghost methods kick butt'}.should_not raise_exception
+    end
+    it "should define ghost methods for class Object" do
+      class Object
+        define_ghost_method(:alive!) do
+          'ALIVE'
+        end
+      end
+      lambda { Object.new.alive!.should == 'ALIVE'}.should_not raise_exception
     end
   end
 

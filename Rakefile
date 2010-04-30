@@ -12,7 +12,6 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.8.7'
   s.description = 'Collection of meta-programming methods for Ruby'
   s.summary = 'Collection of meta-programming methods for Ruby'
-
  
   exclude_folders = '' # 'spec/rails/{doc,lib,log,nbproject,tmp,vendor,test}'
   exclude_files = [] # FileList['**/*.log'] + FileList[exclude_folders+'/**/*'] + FileList[exclude_folders]
