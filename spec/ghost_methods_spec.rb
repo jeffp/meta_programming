@@ -64,6 +64,23 @@ describe "MetaProgramming" do
       end
       lambda { Object.new.alive!.should == 'ALIVE'}.should_not raise_exception
     end
+    it "should accept lambda as an advanced matcher and lambda parameters should be object, symbol, *args" do
+      class TestObject1
+        def yes?; true; end
+        def no?; false; end
+
+        matcher = lambda {|obj, sym, *args| sym.to_s =~ /^yn_(.*\?)$/ && obj.methods.map(&:to_sym).include?($1.to_sym) && $1.to_sym }
+        define_ghost_method(matcher) do |obj, res, *args|
+          obj.__send__(res, *args) ? 'yes' : 'no'
+        end
+      end
+      lambda { TestObject1.new.yes?.should == true}.should_not raise_exception
+      lambda { TestObject1.new.no?.should == false }.should_not raise_exception
+      lambda { TestObject1.new.yn_yes?.should == 'yes'}.should_not raise_exception
+      lambda { TestObject1.new.yn_no?.should == 'no'}.should_not raise_exception
+      lambda { TestObject1.new.yessir? }.should raise_exception(NoMethodError)
+      lambda { TestObject1.new.yn_yessir? }.should raise_exception(NoMethodError)
+    end
   end
 
 end

@@ -49,21 +49,25 @@ module MetaProgramming
       end
 
       def define_ghost_method(matcher, &block)
-        raise ArgumentError, "Matcher argument must be either a 'string', :symbol or /regexp/" unless (matcher.nil? || [String, Symbol, Regexp].any?{|c| matcher.is_a?(c)})
         raise BlockMissingError, "Must have a block" unless block_given?
+        raise ArgumentError, "Matcher argument must be either a 'string', :symbol, /regexp/ or proc" unless (matcher.nil? || [String, Symbol, Regexp, Proc].any?{|c| matcher.is_a?(c)})
         ext = matcher.hash.abs.to_s
-        define_chained_method(:method_missing, ext.to_sym) do |symbol, *args|          
+        define_chained_method(:method_missing, ext.to_sym) do |symbol, *args|
           begin
-            case
-            when ((matcher.is_a?(String) || matcher.is_a?(Symbol)) && (symbol == matcher.to_sym))
-              yield(self, symbol, *args)
-            when (matcher.is_a?(Regexp) && (symbol.to_s =~ matcher))
-              yield(self, symbol, *args)
-            else
-              __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
+            handled = nil
+            result = case matcher
+            when Regexp
+              yield(self, symbol, *args) if (handled = (symbol.to_s =~ matcher))
+            when String, Symbol
+              yield(self, symbol, *args) if (handled = (symbol == matcher.to_sym))
+            when Proc
+              handled = matcher.call(self, symbol, *args)
+              yield(self, handled, *args) if handled
             end
+            __send__("method_missing_without_#{ext}".to_sym, symbol, *args) unless handled
+            result if handled
           rescue LocalJumpError
-            raise LocalJumpError, "Do not use the 'return' keyword in your method block"
+            raise LocalJumpError, "Remove the 'return' keyword in your method block."
           end
         end
       end
