@@ -43,12 +43,8 @@ describe "MetaProgramming" do
       B5.new.respond_to?(:hello).should be_true
       B5.new.respond_to?(:help).should be_false
       class B5
-        define_chained_method(:respond_to?, :help) do |method_name, include_private|
-          if method_name == :help
-            true
-          else
-            respond_to_without_help?(method_name, include_private)
-          end
+        define_chained_method(:respond_to?, :help) do |method_name|
+          method_name == :help ? true : respond_to_without_help?(method_name)
         end
       end
       B5.new.respond_to?(:hello).should be_true

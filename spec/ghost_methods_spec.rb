@@ -36,57 +36,76 @@ describe "MetaProgramming" do
   describe "define_ghost_method method" do
     it "should scream if matcher is not string, symbol or regular expression" do
       lambda {
-        class A2
+        class GHA2
           define_ghost_method(1) { puts 1}
         end
       }.should raise_exception(ArgumentError)
     end
     it "should scream if there's no block given" do
       lambda {
-        class A3
+        class GHA3
           define_ghost_method(:tree)
         end
       }.should raise_exception
     end
     it "should define a ghost method using a symbol" do
-      class A1
+      class GHA1
         define_ghost_method(:catch_this_one) { 'catch_this_one' }
       end
-      lambda { A1.new.not_this_one }.should raise_exception(NoMethodError)
-      lambda { A1.new.catch_this_one.should == 'catch_this_one' }.should_not raise_exception
-      lambda { A1.new.catch_this_one_too }.should raise_exception(NoMethodError)
+      lambda { GHA1.new.not_this_one }.should raise_exception(NoMethodError)
+      lambda { GHA1.new.catch_this_one.should == 'catch_this_one' }.should_not raise_exception
+      lambda { GHA1.new.catch_this_one_too }.should raise_exception(NoMethodError)
     end
     it "should warn about using 'return' keyword in method block" do
-      class A4
+      class GHA4
         define_ghost_method(:catch_this_one) { return 'catch_this_one'}
       end
-      lambda { A4.new.catch_this_one }.should raise_exception(LocalJumpError, /'return' keyword/)
+      lambda { GHA4.new.catch_this_one }.should raise_exception(LocalJumpError, /'return' keyword/)
     end
     it "should define a ghost method using a string" do
-      class A5
+      class GHA5
         define_ghost_method('catch_another') { 'catch_another_one'}
       end
-      lambda { A5.new.catch_another.should == 'catch_another_one'}.should_not raise_exception
-      lambda { A5.new.catch_another_one }.should raise_exception(NoMethodError)
+      lambda { GHA5.new.catch_another.should == 'catch_another_one'}.should_not raise_exception
+      lambda { GHA5.new.catch_another_one }.should raise_exception(NoMethodError)
     end
     it "should define a ghost method using a regular expression" do
-      class A6
+      class GHA6
         define_ghost_method(/catch/) do |object, symbol|
           symbol
         end
       end
-      lambda { A6.new.catch_this_one.should == :catch_this_one }.should_not raise_exception
-      lambda { A6.new.some_catch_here.should == :some_catch_here }.should_not raise_exception
-      lambda { A6.new.atchoo }.should raise_exception(NoMethodError)
+      lambda { GHA6.new.catch_this_one.should == :catch_this_one }.should_not raise_exception
+      lambda { GHA6.new.some_catch_here.should == :some_catch_here }.should_not raise_exception
+      lambda { GHA6.new.atchoo }.should raise_exception(NoMethodError)
     end
     it "should pass arguments to the block" do
-      class A7
+      class GHA7
         define_ghost_method(/ghost/) do |object, symbol, *args|
           "#{symbol.to_s.gsub(/_/, ' ')} #{args.join(' ')}"
         end
       end
-      lambda { A7.new.ghost_methods('kick', 'butt').should == 'ghost methods kick butt'}.should_not raise_exception
+      lambda { GHA7.new.ghost_methods('kick', 'butt').should == 'ghost methods kick butt'}.should_not raise_exception
     end
+    it "should pass parameters" do
+      class GHA9
+        define_ghost_method('test_args') do |obj, sym, *args|
+          args.join(' ')
+        end
+      end
+      GHA9.new.test_args('hi', 'you').should == 'hi you'
+    end
+    #ghost methods that can call blocks are not supported
+#    it "should work for methods called with blocks in 1.9" do
+#      class GHA8
+#        define_ghost_method(:call_block) do |obj, sym, *args|
+#          yield(*args)
+#        end
+#      end
+#      GHA8.new.call_block(%w(hi you)) do |*args|
+#        args.join(' ')
+#      end.should == 'hi you'
+#    end
     it "should define ghost methods for class Object" do
       class Object
         define_ghost_method(:alive!) do
