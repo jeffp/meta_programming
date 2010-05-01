@@ -38,12 +38,6 @@ values in the block parameter list
     ...
   end
 
-Additionally, Ruby 1.8 cannot handle a block argument in the block parameter list
-
-  call_some_method(*args) do |param1, *args, &block|  #oops for Ruby 1.8
-    ...
-  end
-
 This raises support issues for this library.  Should the library fully support both versions
 of Ruby, cripple 1.8 at the expense of 1.9, or kiss the past good-bye and only support version 1.9?
 Of course, the latter is clearer and easier, and may be the best path to pursue.
