@@ -36,7 +36,8 @@ module MetaProgramming
         class_eval do
           method_name_with_ext, method_name_without_ext = compose_chaining_symbols(method_name, ext)
           instance_variable = escape_method_name(method_name_with_ext)
-          if (method_access_level(method_name_with_ext) && !(eigenclass.instance_variable_defined?("@#{instance_variable}")))
+          if method_access_level(method_name_with_ext)
+            raise "#{method_name_with_ext} already chained. Rechaining not permitted" if eigenclass.instance_variable_defined?("@#{instance_variable}")
             if method_access_level(method_name.to_sym)
               #alias_method_chain(method_name.to_sym, ext.to_sym)
               alias_method method_name_without_ext, method_name.to_sym
@@ -56,13 +57,19 @@ module MetaProgramming
       end
 
       def define_chained_method(method_name, ext, &block)
+        raise 'Must have block' unless block_given?
         with, without = compose_chaining_symbols(method_name, ext)
         define_method(with, block)
         safe_alias_method_chain(method_name.to_sym, ext.to_sym)
       end
 
+      def define_method_missing_chain(name, &block)
+        raise 'Must have block' unless block_given?
+        define_chained_method(:method_missing, name.to_sym, &block)
+      end
+
       def define_ghost_method(matcher, &block)
-        raise BlockMissingError, "Must have a block" unless block_given?
+        raise "Must have a block" unless block_given?
         raise ArgumentError, "Matcher argument must be either a 'string', :symbol, /regexp/ or proc" unless (matcher.nil? || [String, Symbol, Regexp, Proc].any?{|c| matcher.is_a?(c)})
         ext = matcher.hash.abs.to_s
         define_chained_method(:method_missing, ext.to_sym) do |symbol, *args|

@@ -2,6 +2,37 @@ require 'lib/meta_programming'
 
 describe "MetaProgramming" do
 
+  describe "define_method_missing_chain method" do
+    it "should create a method_missing chain" do
+      class E1
+        def hello; 'hello'; end
+        define_method_missing_chain(:help) do |symbol, *args|
+          if symbol == :help
+            'help'
+          else
+            method_missing_without_help(symbol, *args)
+          end
+        end
+      end
+      lambda { E1.new.help.should == 'help' }.should_not raise_exception
+      lambda { E1.new.helpme }.should raise_exception(NoMethodError)
+    end
+    it "should scream if defined twice" do
+      lambda {
+        class E2
+          define_method_missing_chain(:help) {}
+          define_method_missing_chain(:help) {}
+         end
+      }.should raise_exception
+    end
+    it "should scream if block missing" do
+      lambda {
+        class E3
+          define_method_missing_chain(:help)
+        end
+      }.should raise_exception
+    end
+  end
   describe "define_ghost_method method" do
     it "should scream if matcher is not string, symbol or regular expression" do
       lambda {

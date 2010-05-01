@@ -148,7 +148,7 @@ describe "MetaProgramming" do
       end
       A2.new.primary(['init']).should == ['init', 'two', 'one', 'primary']
     end
-    it "should not cause endless loop when called twice" do
+    it "should scream if called twice for same method_name and extension" do
       lambda {
         class A3
           def primary(array); array << 'primary'; end
@@ -158,7 +158,7 @@ describe "MetaProgramming" do
           safe_alias_method_chain :primary, :one
         end
         A3.new.primary(['init']).should == ['init', 'one', 'primary']
-      }.should_not raise_exception
+      }.should raise_exception
     end
     it "should chain with = punctuation" do
       class A5
