@@ -12,6 +12,5 @@ module MetaProgramming
         undef_method m unless regexp.match(m.to_s)
       end
     end
-    alias_method :clean_room, :blank_slate
   end
 end

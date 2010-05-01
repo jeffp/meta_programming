@@ -32,9 +32,10 @@ Current Methods
 * eigenclass (or metaclass)
 * safe_alias_method_chain
 * define_chained_method
+* define_method_missing_chain
 * define_ghost_method
 * blank_slate
-* clean_room
+
 
 
 == Usage
