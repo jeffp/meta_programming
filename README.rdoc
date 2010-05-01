@@ -32,15 +32,15 @@ the pitfalls of Ruby meta-programming.
 
 There are considerable differences with the way that Ruby 1.9 and 1.8 handle dynamic
 methods, procs and lambdas.  For instance, Ruby 1.8.x cannot handle default parameter
-values in block parameters
+values in the block parameter list
 
-  call_some_method(*args) do |param1, param2=nil|
+  call_some_method(*args) do |param1, param2=nil| #oops for Ruby 1.8
     ...
   end
 
-Additionally, Ruby 1.8 cannot handle a block in a block parameter list
+Additionally, Ruby 1.8 cannot handle a block argument in the block parameter list
 
-  call_some_method(*args) do |param1, *args, &block|
+  call_some_method(*args) do |param1, *args, &block|  #oops for Ruby 1.8
     ...
   end
 
