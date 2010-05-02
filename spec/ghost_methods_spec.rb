@@ -96,16 +96,16 @@ describe "MetaProgramming" do
       GHA9.new.test_args('hi', 'you').should == 'hi you'
     end
     #ghost methods that can call blocks are not supported
-#    it "should work for methods called with blocks in 1.9" do
-#      class GHA8
-#        define_ghost_method(:call_block) do |obj, sym, *args|
-#          yield(*args)
-#        end
-#      end
-#      GHA8.new.call_block(%w(hi you)) do |*args|
-#        args.join(' ')
-#      end.should == 'hi you'
-#    end
+    #it "should work for methods called with blocks in 1.9" do
+    #  class GHA8
+    #    define_ghost_method(:call_block) do |obj, sym, *args|
+    #      yield(*args)
+    #    end
+    #  end
+    #  GHA8.new.call_block(%w(hi you)) do |*args|
+    #    args.join(' ')
+    #  end.should == 'hi you'
+    #end
     it "should define ghost methods for class Object" do
       class Object
         define_ghost_method(:alive!) do
