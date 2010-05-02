@@ -148,7 +148,7 @@ I'm not satisfied with the ghost method implementation.
 
 I like the fact that define_ghost_method blocks and lambda matchers are now evaluated
 in the context of the object and that the object is no longer passed into the method block
-and lambda matcher.  
+and lambda matcher.  The method feels more akin to its cousin, +define_method+.
 
 == Testing
 
