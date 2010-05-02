@@ -31,6 +31,19 @@ I welcome comments and collaborators who
 would like to develop a library for simplifying common patterns and limit
 the pitfalls of Ruby meta-programming.
 
+== Changelog
+
+* 0.2.0
+
+Removes object parameter from method blocks and lambda matchers in define_ghost_method.
+define_ghost_method block and matchers are now evaluated in the scope of the instance.
+Adds more descriptive error handling.  I've bumped the version to 0.2.0 because this is a major change.
+
+* 0.0.8
+
+initial implementation
+
+
 == Issues
 
 === 1.9 vs 1.8
@@ -66,20 +79,21 @@ Current Methods
 +define_ghost_method+ creates a 'ghost' method for an undefined method that corresponds
 to the 'matcher' parameter.
 
-  define_ghost_method(matcher) do |object, method_name_symbol, *args|
+  define_ghost_method(matcher) do |method_name_symbol, *args|
     ...method body...
   end
 
 A block must be present and it takes (optionally) the receiving object, the method name (as
-a symbol with exception of a lambda matcher) and the method arguments.
+a symbol with exception of a lambda matcher) and the method arguments.  As of 0.2.0, the
+block and lambda matcher is evaluated in the context of the object.
 
 The matcher may be any of a symbol, string, regular expression or Proc/lambda.
 
 ==== String, symbols and regular expression matchers
 
-  define_ghost_method('my_method) {|obj, sym, *args| ... }
-  define_ghost_method(':my_method) {|obj, sym, *args| ... }
-  define_ghost_method(/^my_method$/) {|obj, sym, *args| ... }
+  define_ghost_method('my_method) {|sym, *args| ... }
+  define_ghost_method(':my_method) {|sym, *args| ... }
+  define_ghost_method(/^my_method$/) {|sym, *args| ... }
 
 String and symbol matchers will only process the method if its name matches the string
 or symbol exactly.  Regular expressions provide greater flexibility and care must be
@@ -91,27 +105,28 @@ method block.  This is not the case with lambda matchers.
 
 ==== Proc/lambda matchers
 
-Lambda matchers provide an opportunity to greatly scrutinize the method call based on the
-parameters passed to the method block (object, method_name, *args).  The method is
+Lambda matchers provide an opportunity to greatly scrutinize the method call.  The method is
 invoked for any lambda not evaluating to nil or false.
 
-  proc = lambda{|object, method_name, *args| ...matching code... }
-  define_ghost_method(proc) {|obj, proc_result, *args| ... }
+  proc = lambda{|method_name, *args| ...matching code... }
+  define_ghost_method(proc) {|proc_result, *args| ... }
 
 Proc and lambda matchers differ from the other matcher in that the second parameter passes
 the result of the Proc/lambda matcher to the method block.  This feature lets the matcher
 pre-process the name of the method passed to the body.
 
-  proc = lambda{|obj, sym, *args| sym =~ /^not_(.+\?)$/ && $1.to_sym }
+  proc = lambda{|sym, *args| sym =~ /^not_(.+\?)$/ && self.class.method_defined?($1.to_sym) && $1.to_sym }
+
+The lambda matcher is evaluated in the context of the object and can
+call methods of the object as in the above example.  The lambda matcher is also called
+in the respond_to? method, so it is a good idea to avoid usind respond_to? in the lambda
+matcher to avoid a stack overflow error.  Instead call method_defined? on the class object.
 
 The extra flexibility comes at greater responsibility.  If you only want to pass the
 method name symbol to the method block, don't forget to return it from the lambda.
 
-  proc = lambda{|obj, sym, *args| sym =~ /^not_.+\?$/ && sym }
+  proc = lambda{|sym, *args| sym =~ /^not_.+\?$/ && sym }
 
-Additionally, the 'return' keyword has different effects between Procs and lambdas.
-I suggest not explicitly using the 'return' keyword in your method blocks.  It's a Ruby thing.
-define_ghost_method will remind you if a LocalJumpError is raised.
 
 ==== Critique
 
