@@ -1,4 +1,4 @@
-require 'lib/meta_programming'
+require 'spec_helper'
 
 describe "MetaProgramming" do
   describe "eigenclass and metaclass methods" do

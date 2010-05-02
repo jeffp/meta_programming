@@ -6,8 +6,11 @@ module MetaProgramming
 
     def blank_slate(opts={})
       opts[:except] = opts[:except] ? (opts[:except].is_a?(Array) ? opts[:except] : [opts[:except]]) : []
-      exceptions = ['method_missing', 'respond_to\?', '^__'] + opts[:except].map{|ex| ex.to_s}
-      regexp = Regexp.new(exceptions.join('|'))
+      exceptions =  opts[:except].map(&:to_s)
+      exceptions += ['method_missing', 'respond_to?'] unless opts[:all]
+      matchers = exceptions.map{|ex| "^#{ex.gsub(/\?/, '\?')}$" }
+      matchers << '^__'
+      regexp = Regexp.new(matchers.join('|'))
       instance_methods.each do |m|
         undef_method m unless regexp.match(m.to_s)
       end
