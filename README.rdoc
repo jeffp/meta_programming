@@ -35,9 +35,11 @@ the pitfalls of Ruby meta-programming.
 
 * 0.2.0
 
-Removes object parameter from method blocks and lambda matchers in define_ghost_method.
-define_ghost_method block and matchers are now evaluated in the scope of the instance.
-Adds more descriptive error handling.  I've bumped the version to 0.2.0 because this is a major change.
+Removes object parameter from method blocks and lambda matchers in define_ghost_method, and
+adds more descriptive error handling.  define_ghost_method block and matchers are now
+evaluated in the context of the object instance.
+
+I've bumped the version to 0.2.0 because this changes the interface.
 
 * 0.0.8
 
