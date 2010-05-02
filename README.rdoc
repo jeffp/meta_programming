@@ -102,7 +102,7 @@ The matcher may be any of a symbol, string, regular expression or Proc/lambda.
 ==== String, symbols and regular expression matchers
 
   define_ghost_method('my_method) {|sym, *args| ... }
-  define_ghost_method(':my_method) {|sym, *args| ... }
+  define_ghost_method(:my_method) {|sym, *args| ... }
   define_ghost_method(/^my_method$/) {|sym, *args| ... }
 
 String and symbol matchers will only process the method if its name matches the string
