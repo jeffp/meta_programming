@@ -18,8 +18,8 @@ Concepts/Terminology
 
 Example Code
 
-* why_not[http://github.com/jeffp/why_not]
-* easy_nils[http://github.com/jeffp/easy_nils]
+* why_not[http://github.com/jeffp/why_not/blob/master/lib/why_not.rb]
+* easy_nils[http://github.com/jeffp/easy_nils/blob/master/lib/easy_nils.rb]
 
 == Beta Status
 
