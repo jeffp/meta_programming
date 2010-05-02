@@ -140,7 +140,21 @@ method name symbol to the method block, don't forget to return it from the lambd
 
 ==== Critique
 
-I'm not completely satisfied with the design of the implementation.
+2010.04.30
+
+I'm not satisfied with the ghost method implementation.
+
+2010.05.02
+
+I like the fact that define_ghost_method blocks and lambda matchers are now evaluated
+in the context of the object and that the object is no longer passed into the method block
+and lambda matcher.  
+
+== Testing
+
+Passes for Ruby
+* 1.8.7
+* 1.9.1
 
 == Dependencies
 
