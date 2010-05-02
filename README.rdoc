@@ -59,7 +59,6 @@ Current Methods
 * blank_slate
 
 
-
 == Usage
 
 === define_ghost_method

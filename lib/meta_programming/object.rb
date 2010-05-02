@@ -77,17 +77,14 @@ module MetaProgramming
         ext = matcher.hash.abs.to_s
         define_chained_method(:method_missing, ext.to_sym) do |symbol, *args|
           begin
-            handled = nil
-            result = case matcher
-            when Regexp
-              yield(self, symbol, *args) if (handled = (symbol.to_s =~ matcher))
-            when String, Symbol
-              yield(self, symbol, *args) if (handled = (symbol == matcher.to_sym))
-            when Proc
-              handled = matcher.call(self, symbol)
-              yield(self, handled == true ? symbol : handled, *args) if handled
+            handled = case matcher
+            when Regexp then (symbol.to_s =~ matcher)
+            when String, Symbol then (symbol == matcher.to_sym)
+            when Proc then matcher.call(self, symbol)
+            else nil
             end
-            handled ? result : __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
+            handled ? yield(self, handled == true ? symbol : handled, *args) :
+              __send__("method_missing_without_#{ext}".to_sym, symbol, *args)
           rescue LocalJumpError
             raise LocalJumpError, "Remove the 'return' keyword in your method block."
           end
