@@ -118,14 +118,14 @@ method block.  This is not the case with lambda matchers.
 Lambda matchers provide an opportunity to greatly scrutinize the method call.  The method is
 invoked for any lambda not evaluating to nil or false.
 
-  proc = lambda{|method_name, *args| ...matching code... }
+  proc = lambda{|method_name| ...matching code... }
   define_ghost_method(proc) {|proc_result, *args| ... }
 
 Proc and lambda matchers differ from the other matcher in that the second parameter passes
 the result of the Proc/lambda matcher to the method block.  This feature lets the matcher
 pre-process the name of the method passed to the body.
 
-  proc = lambda{|sym, *args| sym =~ /^not_(.+\?)$/ && self.class.method_defined?($1.to_sym) && $1.to_sym }
+  proc = lambda{|sym| sym =~ /^not_(.+\?)$/ && self.class.method_defined?($1.to_sym) && $1.to_sym }
 
 The lambda matcher is evaluated in the context of the object and can
 call methods of the object as in the above example.  The lambda matcher is also called
@@ -135,7 +135,7 @@ matcher to avoid a stack overflow error.  Instead call method_defined? on the cl
 The extra flexibility comes at greater responsibility.  If you only want to pass the
 method name symbol to the method block, don't forget to return it from the lambda.
 
-  proc = lambda{|sym, *args| sym =~ /^not_.+\?$/ && sym }
+  proc = lambda{|sym| sym =~ /^not_.+\?$/ && sym }
 
 
 ==== Critique
@@ -148,7 +148,7 @@ I'm not satisfied with the ghost method implementation.
 
 I like the fact that define_ghost_method blocks and lambda matchers are now evaluated
 in the context of the object and that the object is no longer passed into the method block
-and lambda matcher.  The method feels more akin to its cousin, +define_method+.
+and lambda matcher.  The method now behaves similarly to its cousin, +define_method+.
 
 == Testing
 
