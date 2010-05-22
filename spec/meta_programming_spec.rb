@@ -72,6 +72,23 @@ describe "MetaProgramming" do
     end
   end
   describe "safe_alias_method_chain method" do
+    it "should warn against circular references" do
+      class L1
+        def method_call
+          'the real one'
+        end
+        def method_call_with_alias
+          method_call_without_alias
+        end
+        safe_alias_method_chain :method_call, :alias
+      end
+      class L2 < L1
+        def method_call_with_alias
+          method_call_without_alias
+        end
+      end
+      lambda { L2.class_eval { safe_alias_method_chain :method_call, :alias } }.should raise_exception(MetaProgramming::AliasMethodChainError, /Circular references/)
+    end
     it "should chain for a primary protected method" do
       class D1
         def primary(array); array << 'primary'; end

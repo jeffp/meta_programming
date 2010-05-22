@@ -4,6 +4,16 @@ module MetaProgramming
       raise 'This module may only be included in class Class' unless base.name == 'Class'
     end
 
+    #opts :matcher=>/xx/, :except=>[:method_name, //, ''], :only=>[:method_name, //, '']
+#    def cast_proxy(target_klass, opts={}, &block)
+#      matcher = lambda{|sym| target_klass.method_defined?(sym) && sym}
+#      define_ghost_method(matcher) {|sym, *args| block.call }
+#    end
+
+    def dynamic_proxy(target, opts={}, &block)
+
+    end
+
     def blank_slate(opts={})
       opts[:except] = opts[:except] ? (opts[:except].is_a?(Array) ? opts[:except] : [opts[:except]]) : []
       exceptions =  opts[:except].map(&:to_s)
