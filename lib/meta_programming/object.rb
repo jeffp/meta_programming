@@ -60,7 +60,7 @@ module MetaProgramming
       end
 
       def define_chained_method(method_name, ext, &block)
-        raise 'Must have block' unless block_given?
+        raise 'Must have a block defining the method body' unless block_given?
         with, without = Helpers.compose_chaining_symbols(method_name, ext)
         define_method(with, block)
         safe_alias_method_chain(method_name.to_sym, ext.to_sym)
@@ -74,7 +74,7 @@ module MetaProgramming
       def define_ghost_method(matcher, &block)
         raise "Must have a block" unless block_given?
         raise ArgumentError, "Matcher argument must be either a 'string', :symbol, /regexp/ or proc" unless (matcher.nil? || [String, Symbol, Regexp, Proc].any?{|c| matcher.is_a?(c)})
-        uniq_ext = "#{self.name.gsub(/^.+>::/,'')}_#{matcher.class.name.gsub(/^.+>::/,'')}#{matcher.hash.abs.to_s}"
+        uniq_ext = "#{self.name.gsub(/.+::/,'')}_#{matcher.class.name.gsub(/.+::/,'')}#{matcher.hash.abs.to_s}"
         _ghost_method_handler = "_ghost_method_handler_#{uniq_ext}".to_sym
         _ghost_method_matcher = "_ghost_method_matcher_#{uniq_ext}".to_sym
         define_method(_ghost_method_handler, block)
